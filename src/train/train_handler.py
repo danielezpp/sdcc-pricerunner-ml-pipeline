@@ -12,7 +12,6 @@ s3 = boto3.client("s3")
 
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
-    # Supporta sia evento S3 che invocazione manuale
     if "Records" in event and event["Records"]:
         rec = event["Records"][0]
         bucket = rec["s3"]["bucket"]["name"]

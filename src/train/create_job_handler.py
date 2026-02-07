@@ -9,7 +9,6 @@ import boto3
 from botocore.config import Config
 
 from src.common.http import api_response, parse_json_body
-from src.common.job_status import write_job_status
 from src.common.keys import (
     aws_region,
     job_dataset_key,
@@ -47,7 +46,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     manifest_key = job_manifest_key(job_id)
     status_key = job_status_key(job_id)
 
-    # status iniziale (identico come intent)
+    # status iniziale
     now = _now_iso()
     status_payload = {
         "job_id": job_id,
@@ -61,7 +60,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     }
     s3.put_object(Bucket=BUCKET, Key=status_key, Body=json_bytes(status_payload), ContentType="application/json")
 
-    # --- PRESIGN (ATTENZIONE REGION/URL) ---
+    # --- PRESIGN ---
     region = aws_region()
 
     s3_presign = boto3.client(
@@ -77,7 +76,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         Conditions=[["content-length-range", 1, 50_000_000]],
         ExpiresIn=900,
     )
-    # URL ESATTA come richiesto (forma che ti tiene in piedi la pipeline)
+
     presigned_post["url"] = f"https://{BUCKET}.s3.{region}.amazonaws.com/"
 
     presigned_manifest_post = s3_presign.generate_presigned_post(
@@ -94,7 +93,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         ExpiresIn=900,
     )
 
-    # expected model_key: centralizzato e coerente col train
     expected_model_key = model_key_for_job(job_id)
 
     return api_response(

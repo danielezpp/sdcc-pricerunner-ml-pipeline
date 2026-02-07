@@ -37,9 +37,6 @@ def job_processed_prefix(job_id: str) -> str:
 
 
 def preprocess_outputs_for_input_key(input_key: str) -> Dict[str, Optional[str]]:
-    """
-    Compatibile con la tua compute_output_keys.
-    """
     if input_key.startswith("raw/pricerunner/producer/"):
         base = producer_processed_prefix()
         return {
@@ -82,7 +79,6 @@ def parse_context_from_processed_key(processed_key: str) -> Dict[str, Optional[s
 
 # ---------- TRAIN ARTIFACT KEYS ----------
 def version_prefix_for_job(job_id: str) -> str:
-    # NOTA: allineato al tuo train_handler attuale: .../versions/jobs/{job_id}
     return f"{S3_MODEL_VERSIONS_PREFIX}/jobs/{job_id}"
 
 

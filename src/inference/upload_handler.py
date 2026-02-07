@@ -30,7 +30,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         post = s3.generate_presigned_post(Bucket=bucket, Key=input_key, ExpiresIn=300)
 
         region = aws_region()
-        # URL ESATTA richiesta
+        # URL Regionale
         post["url"] = f"https://{bucket}.s3.{region}.amazonaws.com/"
 
         s3_presign = boto3.client(

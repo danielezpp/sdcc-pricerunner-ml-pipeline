@@ -17,6 +17,4 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         return run_preprocess_for_s3_object(s3, bucket=bucket, key=key)
     except Exception:
-        # Lo status FAILED è già gestito in service se sei in modalità job.
-        # Qui rilanciamo per far fallire la lambda come prima.
         raise

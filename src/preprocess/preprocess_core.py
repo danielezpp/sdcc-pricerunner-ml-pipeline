@@ -31,7 +31,7 @@ def _normalize_text(s: pd.Series) -> pd.Series:
 
 
 def _normalize_merchant_id(s: pd.Series) -> pd.Series:
-    # Forziamo a stringa per trattarla come categorica (coerente con OneHotEncoder)
+    # Forziamo a stringa per trattarla come categorica (oneHotEncoder)
     s = s.fillna("unknown")
     s = s.astype(str).str.strip()
     s = s.replace({"": "unknown"})
@@ -48,30 +48,26 @@ def preprocess_dataframe(df_raw: pd.DataFrame) -> PreprocessResult:
     """
     df = strip_column_names(df_raw)
 
-    # Validazione minima (non blocchiamo se mancano colonne non usate, ma avvisiamo via schema)
     present_cols = set(df.columns)
 
-    # Se mancano feature/target, qui invece è un errore bloccante
     required = set(FEATURE_COLUMNS + [TARGET_COLUMN])
     missing = sorted(list(required - present_cols))
     if missing:
         raise ValueError(f"Missing required columns in input CSV: {missing}. Found: {sorted(list(present_cols))}")
 
-    # Selezione e copia
     out = df[FEATURE_COLUMNS + [TARGET_COLUMN]].copy()
 
     # Normalizzazioni
     out["Product Title"] = _normalize_text(out["Product Title"])
     out["Merchant ID"] = _normalize_merchant_id(out["Merchant ID"])
     out[TARGET_COLUMN] = out[TARGET_COLUMN].fillna("").astype(str).str.strip()
-    # (non facciamo lowercase sul target per preservare label “ufficiale”; se vuoi uniformare, lo facciamo)
 
-    # Drop righe senza target (non si può addestrare senza label)
+    # Drop righe senza target
     before = len(out)
     out = out[out[TARGET_COLUMN] != ""].copy()
     dropped_no_target = before - len(out)
 
-    # Riordino colonne (contratto)
+    # Riordino colonne
     out = out[PROCESSED_COLUMNS]
 
     # Classi target
